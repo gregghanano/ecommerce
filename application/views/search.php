@@ -1,8 +1,47 @@
+<?php
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<title>Dashboard Orders</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script type='text/script'>
+	$(document).ready(function(){
+		$('#wrapper').on("click", '.page_number', function(){
+			var page = $(this).attr('data-page');
+			var search = $(this).attr('data-search');
+			$.getJSON('/leads/get_leads', { page_number: page, search: search }, function(data){
+				$("tbody").html(data.html);
+			}, "json");
+		});
+		$('#wrapper').on("submit", "#search", function(){
+			var form = $(this);
+			$.post(form.attr('action'), form.serialize(), function(data){
+				$("tbody").html(data.html);
+				$(".btn-group").html(data.pagination);
+			}, "json");
+			return false;
+		});
+	 // $(document).keypress("#search",function(e) {
+  //      if(e.which == 13) {
+  //         alert('You pressed enter!');
+  //    	 }
+
+		
+		// $('.search-box').on('keyup', function(){
+		// 	$.post(
+		// 		$('.search-form').attr('action'),
+		// 		$('.search-form').serialize(),
+		// 		function(output){
+		// 			$('#display').html(output);
+		// 		});
+		// 	return false;
+		// });
+	});
+	</script>
 	<style>
 	body{
 		width:970px;
@@ -86,7 +125,7 @@
 			background-color: #C8C8C8;
 		}
 		.show{
-			margin-left: 450px;
+			margin-left: 430px;
 			vertical-align: top;
 			display: inline;
 		}
@@ -108,41 +147,106 @@
 	</style>
 </head>
 <body>
-	<div class='header'>
-			<h1>Dashboard</h1>
-				<ul>
-					<li><a class='orders-products' href='/Welcome/search'>Orders</a></li>
-					<li><a class='orders-products' href='/Welcome/orders'>Products</a></li>
-				</ul>
-			<p id='log-off'><a class='orders-products' href='/Welcome/admin'>log off</a></p>
-	</div>
+	<div id="wrapper">
+		<div class='header'>
+				<h1>Dashboard</h1>
+					<ul>
+						<li><a class='orders-products' href='#'>Orders</a></li>
+						<li><a class='orders-products' href='/Admins/product_inventory'>Products</a></li>
+					</ul>
+				<p id='log-off'><a class='orders-products' href='/Admins/logout'>log off</a></p>
+		</div>
 
-	<div id="search">
-		<form class='search-form' action='' method='get'>
-				<input class='search-box' type='text' name='search' placeholder='search'>
-		</form>
-		<select class="show" name="show">
-			<option value="Show All">Show All</option>
-			<option value="Order In">Order In</option>
-			<option value="Process">Process</option>
-			<option value="Shipped">Shipped</option>
-		</select>
-		<!-- <form id='add-form'action='' method='post'>
-				<input id='add-new-product' type='submit' value='Add New Product'>
-		</form> -->
-	</div>
+		<div id="search">
+			<form class='search-form' action='/admins/search' method='post'>
+					<input class='search-box' type='text' name='order_search' placeholder='search'>
+			</form>
+			<select class="show" name="show">
+				<option value="Show All">Show All</option>
+				<option value="Order In">Order in process</option>
+				<option value="Shipped">Shipped</option>
+			</select>
+			<!-- <form id='add-form'action='' method='post'>
+					<input id='add-new-product' type='submit' value='Add New Product'>
+			</form> -->
+		</div>
+		<div id='display'>
+			<table>
+				<thead>
+					<th>Order ID</th>
+					<th>Name</th>
+					<th>Date</th>
+					<th>Billing Address</th>
+					<th>Total</th>
+					<th>State of Order</th>
+				</thead>
+				<tbody>
+					<?php
+						foreach($customers as $key => $value) 
+						{
+						
+							?>
 
-	<table>
-		<thead>
-			<th>Order ID</th>
-			<th>Name</th>
-			<th>Date</th>
-			<th>Billing Address</th>
-			<th>Total</th>
-			<th>State of Order</th>
-		</thead>
-		<tbody>
-			<tr class="gray">
+							<tr class="gray">
+							 	<form action="/Admins/order_id/<?=$value['order_id']?>" method="post" id="search">
+									<td><input type="Submit" name="id_holder" value="<?=$value['order_id']?>"></td>
+									<td><?=$value['first_name']?></td>
+									<td><?=$value['order_date']?></td>
+									<td><?=$value['address']?></td>
+									<td>$<?=$value['products_quantity'] * $value['price']?></td>
+									<td>
+										<select action="/Admins/change_status" autofocus="<?=$value['order_status']?>" id="statusform" name="status" >
+											<option><?=$value['order_status']?></option>
+											<option>Shipped</option>
+											<option>Cancelled</option>
+											<option>Order in Process</option>
+										</select>
+									</td>
+								</form>
+							</tr>
+				  <?php } ?>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="btn-toolbar">
+			<div class="btn-group">
+	<?php 		
+	foreach(range(1, $pages) as $page)
+			{ ?>
+				<button data-search="" class='page_number' data-page='<?= $page; ?>'><?= $page; ?></button>
+			<?php 	} ?>
+
+			</div>	
+		</div>
+	</div>
+</body>
+</html>
+			<!-- // }
+
+				// else 
+				// 	{ --> 
+<!-- 
+				 <tr>
+				 	<form action="/Admins/order_id/<?=$value['order_id']?>" method="post">
+						<td><input type="Submit" name="id_holder" value="<?=$value['order_id']?>"></td>
+						<td><?=$value['first_name']?></td>
+						<td><?=$value['order_date']?></td>
+						<td><?=$value['address']?></td>
+						<td>$<?=$value['products_quantity'] * $value['price']?></td>
+						<td>
+							<select action="/Admins/change_status" id="statusform" name="status">
+								<option><?=$status?></option>
+									<option>Shipped</option>
+									<option>Cancelled</option>
+									<option>Order in Process</option>
+							</select>
+						</td>
+					</form>
+				</tr> -->
+
+				
+			<!-- <tr class="gray">
 				<td><a href="/Welcome/order_id">100</a></td>
 				<td>Bob</td>
 				<td>9/6/2014</td>
@@ -225,9 +329,11 @@
 						<option value="Cancelled">Cancelled</option>
 					</select>
 				</td>
-			</tr>
+			</tr> -->
+	<!-- 	</tbody>
 	</table>
-
+</div>
+///////PAGE NUMBERS///////
 	<div class="numbers">
 		<ul>
 			<li><a href="/Welcome/search">1</a></li>
@@ -244,5 +350,4 @@
 		</ul>
 	</div>
 </body>
-</html>
-	
+</html> -->

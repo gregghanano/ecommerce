@@ -1,14 +1,39 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>User page 1</title>	
+	<meta charset="utf-8">
+	<title>All Products</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+	<script type="text/javascript">
+		$(document).ready(function()
+		{
+			$(document).keypress("#search",function(e) 
+			{
+    			if(e.which == 13) 
+    			{
+    			}
+    		});
+    		
+    		$("#sortBy").change(function() 
+    		{ 
+				$('#formSort').submit();
+    		
+    		});
+		});
+	</script>
+
 
 <style type="text/css">
 	
 	body {
 		width: 970px;
+		background-color: #CEE3F6;
+
 	}
 	.header {
-	 background-color: black;
+	 background-color: #81BEF7;
+	 border-radius: 20px;
 	 height: 60px;
 	 color: white;
 	}
@@ -24,8 +49,17 @@
 	 margin-left: 500px;
 	}
 
+	.shoppingCartColor{
+	color: white;
+	}
+
+	#shoppingCartColor{
+		color: white;
+	}
+
 	.products_index{
-		border: solid 1px black;
+		border: solid 1px #81BEF7;
+		border-radius: 20px;
 		width: 200px;
 		margin-top: 10px;
 		margin-right: 10px;
@@ -33,9 +67,9 @@
 
 	.products_view{
 		
-		border: solid 1px black;
+		border: solid 1px #81BEF7;
+		border-radius: 20px;
 		width: 750px;
-		height: 500px;
 		margin-top: 10px;
 
 	}
@@ -50,7 +84,6 @@
 	}
 
 	.products_index, .products_view {
-
 		display: inline-block;
 		vertical-align: top;
 	}
@@ -59,103 +92,113 @@
 		display: inline-block;
 	}
 
-	.shirt {
-		font-size: 32px;
+	.category {
+/*		font-size: 32px;*/
 		margin-right: 300px;
-
+		padding-left: 10px;
+	}
+	img{
+	border-radius: 20px;	
+	}
+	#page{
+		display: inline-block;
+		vertical-align: top;
+		margin-left: 500px;
+		margin-top: -50px;
 	}
 
-	
+	#search{
+		border-radius: 20px;
+		margin-top: 10px;
+		margin-left: 10px;
+	}
+
+	#sortBy{
+		border-radius: 20px;
+		margin-left: 10px;
+		/*margin-top: -10px;*/
+	}
+
+	#formSort{
+	margin-top: -10px;	
+	}
+
+	.outOfStock{
+		color: white;
+		font-weight: bold;
+		background-color: red;
+		border: solid 1px black;
+		text-align: center;
+		margin-top: 14px;
+		}
+
+	.pictures{
+		display: inline-block;
+	}
+
 </style>
 </head>
 
 <body>
-   	<div class="header">
-   		<h2 id="title">Dojo eCommerce</h2>
-   		<h2 id="shoppingCart">Shopping Cart (5)</h2>
-	</div>
+ 	<div class="header">
+ 		<h2 id="title">BuyAmericaDotCom</h2>
+ 		<h2 id="shoppingCart"><a id="shoppingCartColor" href="/Welcome/cart">Shopping Cart (<?= $this->session->userdata('cart')['total_items'] ?>)</a></h2>
+ 	</div>
 	<div class="main_body">
 
 		<div class="products_index">
-			<form>
-				<input type='search' value='product name'>
-				<input type='submit'>
+			<form action="/Welcome/search" method="post">
+				<input type='search' id="search" name="productName" placeholder="product search">
 			</form>
 			<ul>
 				<li>Categories</li>
 					<ul>
-						<li><a href="">T-shirts (<insert number)</a></li>
-						<li><a href="">Shoes (35)</a></li>
-						<li><a href="">Cups (5)</a></li>
-						<li><a href="">Fruits (105)</a></li>
-						<li><a href="">Show all</a></li>
+<?php 
+			foreach($categories as $key)
+			{ ?>
+				<li><a href="/Welcome/product_category/<?= $key['category']?>"><?= $key['category']." (".$key['count']?>)</a></li>
+<?php		} ?>
 					</ul>
+				<li><a href="/Welcome/">Show All</a></li>
 			</ul>
 		</div>
-
 		<div class='products_view'>
 			<div class='products_title'>
-				<p class='shirt'>T-shirts (page 2<show page number>)</p>
-				<p><a href="">first</a>| </p>
-				<p><a href="">previous</a>| </p>
-				<p>2| </p>
-				<p><a href="">next</a></p>
+				<h2 class='category'><?=$category?></h2>
+				<div id="page">
+					<p><a href="">first</a>| </p>
+					<p><a href="">previous</a>| </p>
+					<p>2| </p>
+					<p><a href="">next</a></p>
+				</div>
 			</div>
-			<p>Sorted by</p>
-			<select>
-				<option value='Price'>Price</option>
-				<option value='Most Popular'>Most Popular</option>
-			</select>
-		
+			<div>
+				<p class='category'>Sorted by: <?=$this->session->userdata('sortBy')?></p>
+				<form class='category' id="formSort" action="/Welcome/sortBy" method="post">
+					<select id="sortBy" name="sortBy">
+						<option value='blank'>-Sort By-</option>
+						<option value='price'>Price (low-high)</option>
+						<option value='quantity_sold'>Most Popular</option>
+					</select>
+				</form>
+			</div>
 			<div class='products'>
-				<div>
-					<img src="cheese-dutchleerdammer.jpg" alt="Smiley face" height="42" width="42">
-					<p>$5.00</p>
-					<p>Dutch Cheese</p>
-				</div>
-				<div>
-					<img src="Yellow-Cheese.jpg" alt="Smiley face" height="42" width="42">
-					<p>$2.00</p>
-					<p>Yellow Cheese</p>
-				</div>
-				<div>
-					<img src="Vegan-Muenster-Cheese.jpg" alt="Smiley face" height="42" width="42">
-					<p>$3.00</p>
-					<p>Vegan Cheese</p>
-				</div><div>
-					<img src="Cheese_Squares.jpg" alt="Smiley face" height="42" width="42">
-					<p>$5.00</p>
-					<p>Cheese Squares</p>
-				</div>
-				<div>
-					<img src="American cheese Getty Images.png" alt="Smiley face" height="42" width="42">
-					<p>$2.25</p>
-					<p>American Cheese</p>
-				</div>
-				<div>
-					<img src="cheese-dutchleerdammer.jpg" alt="Smiley face" height="42" width="42">
-					<p>$5.00</p>
-					<p>Dutch Cheese</p>
-				</div>
-				<div>
-					<img src="Yellow-Cheese.jpg" alt="Smiley face" height="42" width="42">
-					<p>$2.00</p>
-					<p>Yellow Cheese</p>
-				</div>
-				<div>
-					<img src="Vegan-Muenster-Cheese.jpg" alt="Smiley face" height="42" width="42">
-					<p>$3.00</p>
-					<p>Vegan Cheese</p>
-				</div><div>
-					<img src="Cheese_Squares.jpg" alt="Smiley face" height="42" width="42">
-					<p>$5.00</p>
-					<p>Cheese Squares</p>
-				</div>
-				<div>
-					<img src="American cheese Getty Images.png" alt="Smiley face" height="42" width="42">
-					<p>$2.25</p>
-					<p>American Cheese</p>
-				</div>
+<?php 		foreach($product as $key)
+			{ ?>
+			<div>	
+				
+<?php 		if($key['inventory_count']<1) 
+			{ ?>				
+				<img class="product_photo" src="<?=$key['description']?>" alt="Smiley face" height="200" width="200">
+				<p class="outOfStock">"  Out of Stock  "</p>
+<?php 		} else 
+	 			{ ?>
+					<a href="/Welcome/product_desc/<?=$key['id']?>"><img class="product_photo" src="<?=$key['description']?>" alt="Smiley face" height="200" width="200"></a>
+					<p>$<?= number_format($key['price'],2)?></p>
+<?php			}?>				
+				<p><?=$key['name']?></p>
+			</div>
+<?php		} ?>
 			</div>
 			<div class='page_toggle'>
 				<p><a href="">1</a>|</p>
